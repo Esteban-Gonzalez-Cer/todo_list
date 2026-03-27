@@ -1,3 +1,7 @@
+/* =========================================
+   BUSINESS LOGIC (Para Pruebas Unitarias)
+   ========================================= */
+
 let todos = [];
 let nextId = 1;
 
@@ -29,10 +33,23 @@ function removeTodo(id) {
     todos = todos.filter(t => t.id !== id);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { getTodos, addTodo, toggleTodoStatus, removeTodo };
+function editTodo(id, newTitle, newDescription, newCompleted) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) {
+        todo.title = newTitle;
+        todo.description = newDescription;
+        todo.completed = newCompleted;
+    }
+    return todo;
 }
 
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { getTodos, addTodo, toggleTodoStatus, removeTodo, editTodo };
+}
+
+/* =========================================
+   DOM LOGIC (Interfaz de Usuario)
+   ========================================= */
 
 function handleToggle(id) {
     toggleTodoStatus(id);
@@ -44,11 +61,37 @@ function handleDelete(id) {
     render();
 }
 
+let editingId = null;
+
+function handleEdit(id) {
+    const todo = getTodos().find(t => t.id === id);
+    if (!todo) return;
+    
+    editingId = id;
+    if (typeof document !== 'undefined') {
+        document.getElementById('modal-title').value = todo.title;
+        document.getElementById('modal-description').value = todo.description;
+        document.getElementById('modal-completed').checked = todo.completed;
+        document.getElementById('modal-alert').classList.add('d-none');
+        
+        // Abrir modal
+        if (typeof $ !== 'undefined') {
+            $('#modal').modal('show');
+        }
+    }
+}
+
 let tableBody = null;
 let titleInput = null;
 let descriptionInput = null;
 let alertBox = null;
 let btn = null;
+
+let modalTitle = null;
+let modalDescription = null;
+let modalCompleted = null;
+let modalBtn = null;
+let modalAlert = null;
 
 if (typeof document !== 'undefined') {
     tableBody = document.querySelector('#table tbody');
@@ -56,6 +99,12 @@ if (typeof document !== 'undefined') {
     descriptionInput = document.getElementById('description');
     alertBox = document.getElementById('alert');
     btn = document.getElementById('add');
+    
+    modalTitle = document.getElementById('modal-title');
+    modalDescription = document.getElementById('modal-description');
+    modalCompleted = document.getElementById('modal-completed');
+    modalBtn = document.getElementById('modal-btn');
+    modalAlert = document.getElementById('modal-alert');
 }
 
 function render() {
@@ -76,7 +125,7 @@ function render() {
                 <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="handleToggle(${todo.id})">
             </td>
             <td class="text-right">
-                <button class="btn btn-primary mb-1">
+                <button class="btn btn-primary mb-1" onclick="handleEdit(${todo.id})">
                     <i class="fa fa-pencil"></i>
                 </button>
                 <button class="btn btn-danger mb-1 ml-1" onclick="handleDelete(${todo.id})">
@@ -90,7 +139,7 @@ function render() {
 
 if (btn) {
     btn.addEventListener('click', function () {
-        if (titleInput.value === '' || descriptionInput.value === '') {
+        if (titleInput.value.trim() === '' || descriptionInput.value.trim() === '') {
             alertBox.classList.remove('d-none');
             alertBox.innerText = 'Title and description are required';
             return;
@@ -98,11 +147,30 @@ if (btn) {
 
         alertBox.classList.add('d-none');
         
-        addTodo(titleInput.value, descriptionInput.value);
+        addTodo(titleInput.value.trim(), descriptionInput.value.trim());
         render();
 
         titleInput.value = '';
         descriptionInput.value = '';
+    });
+}
+
+if (modalBtn) {
+    modalBtn.addEventListener('click', function() {
+        if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
+            modalAlert.classList.remove('d-none');
+            modalAlert.innerText = 'Title and description are required';
+            return;
+        }
+        
+        modalAlert.classList.add('d-none');
+        
+        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
+        render();
+        
+        if (typeof $ !== 'undefined') {
+            $('#modal').modal('hide');
+        }
     });
 }
 
