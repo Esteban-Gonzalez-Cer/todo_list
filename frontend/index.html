@@ -30,9 +30,9 @@
           </a>
         </li>
       </ul>
-      <!-- <form class="form-inline my-2 my-lg-0" id="filters">
+      <form class="form-inline my-2 my-lg-0" id="filters">
         <label class="font-weight-bold text-info mr-3">Filters</label>
-        <input type="radio" name="type" value="all" class="mx-1">
+        <input type="radio" name="type" value="all" class="mx-1" checked>
         <label for="male" class="mb-0">All</label>
         <input type="radio" name="type" value="completed" class="mx-1">
         <label for="female" class="mb-0">Completed</label>
@@ -49,13 +49,13 @@
         <button class="btn btn-outline-info my-2 my-sm-0" type="submit" id="search">
           Search
         </button>
-      </form> -->
+      </form>
     </div>
   </nav>
 
   <!-- Modal -->
 
-  <!-- <div
+  <div
     class="modal fade"
     id="modal"
     tabindex="-1"
@@ -94,9 +94,15 @@
             </div>
             <div class="form-group">
               <label>Description</label>
-              <textarea class="form-control" id="modal-description" rows="3">
-
-              </textarea>
+              <textarea class="form-control" id="modal-description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Priority</label>
+              <select id="modal-priority" class="form-control">
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+              </select>
             </div>
             <div class="form-group d-inline-flex">
               <label>Completed</label>
@@ -119,7 +125,7 @@
         </div>
       </div>
     </div>
-  </div> -->
+  </div>
 
   <main>
     <div class="container pt-3">
@@ -136,9 +142,17 @@
               <label class="m-sm-0">Title</label>
               <input type="text" id="title" class="form-control ml-sm-2" placeholder="Learn JS">
             </div>
-            <div class="px-sm-2 col-sm-7 d-sm-flex align-items-center mt-2 mt-sm-0">
+            <div class="px-sm-2 col-sm-4 d-sm-flex align-items-center mt-2 mt-sm-0">
               <label class="m-sm-0">Description</label>
               <input type="text" id="description" class="form-control ml-sm-2" placeholder="Watch JS Tutorials">
+            </div>
+            <div class="px-sm-2 col-sm-3 d-sm-flex align-items-center mt-2 mt-sm-0">
+              <label class="m-sm-0">Priority</label>
+              <select id="priority" class="form-control ml-sm-2">
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja" selected>Baja</option>
+              </select>
             </div>
             <div class="col-sm-2 d-sm-flex justify-content-end mt-4 mt-sm-0">
               <button type="button" class="btn btn-info btn-block" id="add">
