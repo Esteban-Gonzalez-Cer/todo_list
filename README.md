@@ -1,5 +1,4 @@
 # JS ToDo List - Peer Programming Project
-
 ## Descripción
 Aplicación web dinámica para la gestión de tareas (ToDo List) desarrollada con Vanilla JavaScript. Este proyecto consiste en la implementación de la lógica interactiva sobre un template estático en HTML y Bootstrap, creando un CRUD completo, persistencia de datos y filtros de búsqueda mediante la metodología de **Peer Programming**.
 

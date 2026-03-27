@@ -1,3 +1,7 @@
+/* =========================================
+   (Para Pruebas Unitarias)
+   ========================================= */
+
 let todos = [];
 let nextId = 1;
 
@@ -5,13 +9,12 @@ function getTodos() {
     return todos;
 }
 
-function addTodo(title, description, priority = 'Baja') {
+function addTodo(title, description) {
     if (!title || !description) return null;
     const newTodo = {
         id: nextId++,
         title,
         description,
-        priority,
         completed: false
     };
     todos.push(newTodo);
@@ -30,13 +33,12 @@ function removeTodo(id) {
     todos = todos.filter(t => t.id !== id);
 }
 
-function editTodo(id, newTitle, newDescription, newCompleted, newPriority) {
+function editTodo(id, newTitle, newDescription, newCompleted) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.title = newTitle;
         todo.description = newDescription;
         todo.completed = newCompleted;
-        if (newPriority) todo.priority = newPriority;
     }
     return todo;
 }
@@ -103,13 +105,6 @@ function handleEdit(id) {
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
 
-        const modalPriority = document.getElementById('modal-priority');
-        if (modalPriority && todo.priority) {
-            modalPriority.value = todo.priority;
-        } else if (modalPriority) {
-            modalPriority.value = 'Baja';
-        }
-
         // Abrir modal
         if (typeof $ !== 'undefined') {
             $('#modal').modal('show');
@@ -120,14 +115,12 @@ function handleEdit(id) {
 let tableBody = null;
 let titleInput = null;
 let descriptionInput = null;
-let priorityInput = null;
 let alertBox = null;
 let btn = null;
 
 let modalTitle = null;
 let modalDescription = null;
 let modalCompleted = null;
-let modalPriority = null;
 let modalBtn = null;
 let modalAlert = null;
 
@@ -135,14 +128,12 @@ if (typeof document !== 'undefined') {
     tableBody = document.querySelector('#table tbody');
     titleInput = document.getElementById('title');
     descriptionInput = document.getElementById('description');
-    priorityInput = document.getElementById('priority');
     alertBox = document.getElementById('alert');
     btn = document.getElementById('add');
 
     modalTitle = document.getElementById('modal-title');
     modalDescription = document.getElementById('modal-description');
     modalCompleted = document.getElementById('modal-completed');
-    modalPriority = document.getElementById('modal-priority');
     modalBtn = document.getElementById('modal-btn');
     modalAlert = document.getElementById('modal-alert');
 }
@@ -183,16 +174,6 @@ function render() {
 
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
-
-        let priorityClass = '';
-        if (todo.priority === 'Alta') priorityClass = 'table-danger';
-        else if (todo.priority === 'Media') priorityClass = 'table-warning';
-        else if (todo.priority === 'Baja') priorityClass = 'table-success';
-
-        if (priorityClass) {
-            row.classList.add(priorityClass);
-        }
-
         const textStyle = todo.completed ? 'text-decoration: line-through; color: gray;' : '';
         row.innerHTML = `
             <td style="${textStyle}">
@@ -227,13 +208,11 @@ if (btn) {
 
         alertBox.classList.add('d-none');
 
-        const prioValue = priorityInput ? priorityInput.value : 'Baja';
-        addTodo(titleInput.value.trim(), descriptionInput.value.trim(), prioValue);
+        addTodo(titleInput.value.trim(), descriptionInput.value.trim());
         render();
 
         titleInput.value = '';
         descriptionInput.value = '';
-        if (priorityInput) priorityInput.value = 'Baja';
     });
 }
 
@@ -246,8 +225,8 @@ if (modalBtn) {
         }
 
         modalAlert.classList.add('d-none');
-        const prioValue = modalPriority ? modalPriority.value : 'Baja';
-        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked, prioValue);
+
+        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
         render();
 
         if (typeof $ !== 'undefined') {
@@ -258,8 +237,6 @@ if (modalBtn) {
 
 // Render inicial
 if (typeof document !== 'undefined') {
-<<<<<<< HEAD
-=======
     const filterForm = document.getElementById('filters');
     if (filterForm) {
         const typeRadios = document.getElementsByName('type');
@@ -278,7 +255,6 @@ if (typeof document !== 'undefined') {
         });
     }
 
->>>>>>> c0813d9 (Se ha agrego el filtrado de tareas para la visualización de la tabla)
     loadFromLocalStorage();
     render();
 }
