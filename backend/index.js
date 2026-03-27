@@ -43,13 +43,44 @@ function editTodo(id, newTitle, newDescription, newCompleted) {
     return todo;
 }
 
+function restoreData(data) {
+    todos = data.todos || [];
+    nextId = data.nextId || 1;
+}
+
+function getNextId() {
+    return nextId;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { getTodos, addTodo, toggleTodoStatus, removeTodo, editTodo };
+    module.exports = { getTodos, getNextId, addTodo, toggleTodoStatus, removeTodo, editTodo, restoreData };
 }
 
 /* =========================================
    DOM LOGIC (Interfaz de Usuario)
    ========================================= */
+
+function saveToLocalStorage() {
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('todo_list_data', JSON.stringify({
+            todos: getTodos(),
+            nextId: getNextId()
+        }));
+    }
+}
+
+function loadFromLocalStorage() {
+    if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('todo_list_data');
+        if (stored) {
+            try {
+                restoreData(JSON.parse(stored));
+            } catch (e) {
+                console.error('Error parsing local storage data', e);
+            }
+        }
+    }
+}
 
 function handleToggle(id) {
     toggleTodoStatus(id);
@@ -109,6 +140,7 @@ if (typeof document !== 'undefined') {
 
 function render() {
     if (!tableBody) return;
+    saveToLocalStorage();
     tableBody.innerHTML = '';
     const currentTodos = getTodos();
     currentTodos.forEach(todo => {
@@ -176,5 +208,6 @@ if (modalBtn) {
 
 // Render inicial
 if (typeof document !== 'undefined') {
+    loadFromLocalStorage();
     render();
 }
