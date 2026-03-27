@@ -1,5 +1,5 @@
 /* =========================================
-   BUSINESS LOGIC (Para Pruebas Unitarias)
+   (Para Pruebas Unitarias)
    ========================================= */
 
 let todos = [];
@@ -34,13 +34,12 @@ function removeTodo(id) {
     todos = todos.filter(t => t.id !== id);
 }
 
-function editTodo(id, newTitle, newDescription, newCompleted, newPriority) {
+function editTodo(id, newTitle, newDescription, newCompleted) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.title = newTitle;
         todo.description = newDescription;
         todo.completed = newCompleted;
-        if (newPriority) todo.priority = newPriority;
     }
     return todo;
 }
@@ -71,6 +70,19 @@ function saveToLocalStorage() {
     }
 }
 
+function loadFromLocalStorage() {
+    if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('todo_list_data');
+        if (stored) {
+            try {
+                restoreData(JSON.parse(stored));
+            } catch (e) {
+                console.error('Error parsing local storage data', e);
+            }
+        }
+    }
+}
+
 function handleToggle(id) {
     toggleTodoStatus(id);
     render();
@@ -93,13 +105,6 @@ function handleEdit(id) {
         document.getElementById('modal-description').value = todo.description;
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
-        
-        const modalPriority = document.getElementById('modal-priority');
-        if (modalPriority && todo.priority) {
-            modalPriority.value = todo.priority;
-        } else if (modalPriority) {
-            modalPriority.value = 'Baja';
-        }
 
         // Abrir modal
         if (typeof $ !== 'undefined') {
@@ -118,7 +123,6 @@ let btn = null;
 let modalTitle = null;
 let modalDescription = null;
 let modalCompleted = null;
-let modalPriority = null;
 let modalBtn = null;
 let modalAlert = null;
 
@@ -133,7 +137,6 @@ if (typeof document !== 'undefined') {
     modalTitle = document.getElementById('modal-title');
     modalDescription = document.getElementById('modal-description');
     modalCompleted = document.getElementById('modal-completed');
-    modalPriority = document.getElementById('modal-priority');
     modalBtn = document.getElementById('modal-btn');
     modalAlert = document.getElementById('modal-alert');
 }
@@ -142,9 +145,9 @@ function render() {
     if (!tableBody) return;
     saveToLocalStorage();
     tableBody.innerHTML = '';
-    
+
     let currentTodos = getTodos();
-    
+
     // Filtros
     if (typeof document !== 'undefined') {
         const filterForm = document.getElementById('filters');
@@ -154,14 +157,14 @@ function render() {
             for (let radio of typeRadios) {
                 if (radio.checked) selectedType = radio.value;
             }
-            
+
             const wordsInput = document.querySelector('input[name="words"]');
             const searchWord = wordsInput ? wordsInput.value.toLowerCase() : '';
-            
+
             currentTodos = currentTodos.filter(todo => {
                 if (selectedType === 'completed' && !todo.completed) return false;
                 if (selectedType === 'uncompleted' && todo.completed) return false;
-                
+
                 if (searchWord !== '') {
                     const titleMatch = todo.title.toLowerCase().includes(searchWord);
                     const descMatch = todo.description.toLowerCase().includes(searchWord);
@@ -217,9 +220,8 @@ if (btn) {
         }
 
         alertBox.classList.add('d-none');
-        
-        const prioValue = priorityInput ? priorityInput.value : 'Baja';
-        addTodo(titleInput.value.trim(), descriptionInput.value.trim(), prioValue);
+
+        addTodo(titleInput.value.trim(), descriptionInput.value.trim());
         render();
 
         titleInput.value = '';
@@ -247,6 +249,24 @@ if (modalBtn) {
     });
 }
 
+if (modalBtn) {
+    modalBtn.addEventListener('click', function () {
+        if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
+            modalAlert.classList.remove('d-none');
+            modalAlert.innerText = 'Title and description are required';
+            return;
+        }
+
+        modalAlert.classList.add('d-none');
+
+        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
+        render();
+
+        if (typeof $ !== 'undefined') {
+            $('#modal').modal('hide');
+        }
+    });
+}
 
 // Render inicial
 if (typeof document !== 'undefined') {
@@ -256,13 +276,13 @@ if (typeof document !== 'undefined') {
         for (let radio of typeRadios) {
             radio.addEventListener('change', render);
         }
-        
+
         const wordsInput = document.querySelector('input[name="words"]');
         if (wordsInput) {
             wordsInput.addEventListener('input', render);
         }
-        
-        filterForm.addEventListener('submit', function(e) {
+
+        filterForm.addEventListener('submit', function (e) {
             e.preventDefault();
             render();
         });
