@@ -9,12 +9,13 @@ function getTodos() {
     return todos;
 }
 
-function addTodo(title, description) {
+function addTodo(title, description, priority = 'Baja') {
     if (!title || !description) return null;
     const newTodo = {
         id: nextId++,
         title,
         description,
+        priority,
         completed: false
     };
     todos.push(newTodo);
@@ -33,12 +34,13 @@ function removeTodo(id) {
     todos = todos.filter(t => t.id !== id);
 }
 
-function editTodo(id, newTitle, newDescription, newCompleted) {
+function editTodo(id, newTitle, newDescription, newCompleted, newPriority) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.title = newTitle;
         todo.description = newDescription;
         todo.completed = newCompleted;
+        if (newPriority) todo.priority = newPriority;
     }
     return todo;
 }
@@ -104,6 +106,13 @@ function handleEdit(id) {
         document.getElementById('modal-description').value = todo.description;
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
+        
+        const modalPriority = document.getElementById('modal-priority');
+        if (modalPriority && todo.priority) {
+            modalPriority.value = todo.priority;
+        } else if (modalPriority) {
+            modalPriority.value = 'Baja';
+        }
 
         // Abrir modal
         if (typeof $ !== 'undefined') {
@@ -115,12 +124,14 @@ function handleEdit(id) {
 let tableBody = null;
 let titleInput = null;
 let descriptionInput = null;
+let priorityInput = null;
 let alertBox = null;
 let btn = null;
 
 let modalTitle = null;
 let modalDescription = null;
 let modalCompleted = null;
+let modalPriority = null;
 let modalBtn = null;
 let modalAlert = null;
 
@@ -128,12 +139,14 @@ if (typeof document !== 'undefined') {
     tableBody = document.querySelector('#table tbody');
     titleInput = document.getElementById('title');
     descriptionInput = document.getElementById('description');
+    priorityInput = document.getElementById('priority');
     alertBox = document.getElementById('alert');
     btn = document.getElementById('add');
 
     modalTitle = document.getElementById('modal-title');
     modalDescription = document.getElementById('modal-description');
     modalCompleted = document.getElementById('modal-completed');
+    modalPriority = document.getElementById('modal-priority');
     modalBtn = document.getElementById('modal-btn');
     modalAlert = document.getElementById('modal-alert');
 }
@@ -174,6 +187,16 @@ function render() {
 
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
+        
+        let priorityClass = '';
+        if (todo.priority === 'Alta') priorityClass = 'table-danger';
+        else if (todo.priority === 'Media') priorityClass = 'table-warning';
+        else if (todo.priority === 'Baja') priorityClass = 'table-success';
+        
+        if (priorityClass) {
+            row.classList.add(priorityClass);
+        }
+
         const textStyle = todo.completed ? 'text-decoration: line-through; color: gray;' : '';
         row.innerHTML = `
             <td style="${textStyle}">
@@ -207,12 +230,14 @@ if (btn) {
         }
 
         alertBox.classList.add('d-none');
-
-        addTodo(titleInput.value.trim(), descriptionInput.value.trim());
+        
+        const prioValue = priorityInput ? priorityInput.value : 'Baja';
+        addTodo(titleInput.value.trim(), descriptionInput.value.trim(), prioValue);
         render();
 
         titleInput.value = '';
         descriptionInput.value = '';
+        if (priorityInput) priorityInput.value = 'Baja';
     });
 }
 
@@ -225,8 +250,8 @@ if (modalBtn) {
         }
 
         modalAlert.classList.add('d-none');
-
-        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
+        const prioValue = modalPriority ? modalPriority.value : 'Baja';
+        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked, prioValue);
         render();
 
         if (typeof $ !== 'undefined') {
