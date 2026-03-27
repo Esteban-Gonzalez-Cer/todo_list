@@ -71,19 +71,6 @@ function saveToLocalStorage() {
     }
 }
 
-function loadFromLocalStorage() {
-    if (typeof localStorage !== 'undefined') {
-        const stored = localStorage.getItem('todo_list_data');
-        if (stored) {
-            try {
-                restoreData(JSON.parse(stored));
-            } catch (e) {
-                console.error('Error parsing local storage data', e);
-            }
-        }
-    }
-}
-
 function handleToggle(id) {
     toggleTodoStatus(id);
     render();
@@ -259,6 +246,7 @@ if (modalBtn) {
         }
     });
 }
+
 
 // Render inicial
 if (typeof document !== 'undefined') {
