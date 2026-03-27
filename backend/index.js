@@ -33,7 +33,6 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = { getTodos, addTodo, toggleTodoStatus, removeTodo };
 }
 
-
 function handleToggle(id) {
     toggleTodoStatus(id);
     render();
@@ -105,6 +104,7 @@ if (btn) {
         descriptionInput.value = '';
     });
 }
+
 
 // Render inicial
 if (typeof document !== 'undefined') {
