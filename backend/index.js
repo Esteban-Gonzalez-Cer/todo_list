@@ -1,6 +1,3 @@
-/* =========================================
-   (Para Pruebas Unitarias)
-   ========================================= */
 
 let todos = [];
 let nextId = 1;
@@ -34,19 +31,32 @@ function removeTodo(id) {
     todos = todos.filter(t => t.id !== id);
 }
 
-function editTodo(id, newTitle, newDescription, newCompleted) {
+function editTodo(id, newTitle, newDescription, newCompleted, newPriority) {
     const todo = todos.find(t => t.id === id);
     if (todo) {
         todo.title = newTitle;
         todo.description = newDescription;
         todo.completed = newCompleted;
+        if (newPriority) todo.priority = newPriority;
     }
     return todo;
 }
 
 function restoreData(data) {
-    todos = data.todos || [];
-    nextId = data.nextId || 1;
+    if (Array.isArray(data)) {
+        todos = data;
+        let maxId = 0;
+        for (let t of todos) {
+            if (t.id > maxId) maxId = t.id;
+        }
+        nextId = maxId + 1;
+    } else if (data && typeof data === 'object') {
+        todos = data.todos || [];
+        nextId = data.nextId || 1;
+    } else {
+        todos = [];
+        nextId = 1;
+    }
 }
 
 function getNextId() {
@@ -106,6 +116,13 @@ function handleEdit(id) {
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
 
+        const modalPriority = document.getElementById('modal-priority');
+        if (modalPriority && todo.priority) {
+            modalPriority.value = todo.priority;
+        } else if (modalPriority) {
+            modalPriority.value = 'Baja';
+        }
+
         // Abrir modal
         if (typeof $ !== 'undefined') {
             $('#modal').modal('show');
@@ -123,6 +140,7 @@ let btn = null;
 let modalTitle = null;
 let modalDescription = null;
 let modalCompleted = null;
+let modalPriority = null;
 let modalBtn = null;
 let modalAlert = null;
 
@@ -137,6 +155,7 @@ if (typeof document !== 'undefined') {
     modalTitle = document.getElementById('modal-title');
     modalDescription = document.getElementById('modal-description');
     modalCompleted = document.getElementById('modal-completed');
+    modalPriority = document.getElementById('modal-priority');
     modalBtn = document.getElementById('modal-btn');
     modalAlert = document.getElementById('modal-alert');
 }
@@ -177,12 +196,10 @@ function render() {
 
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
-        
         let priorityClass = '';
         if (todo.priority === 'Alta') priorityClass = 'table-danger';
         else if (todo.priority === 'Media') priorityClass = 'table-warning';
         else if (todo.priority === 'Baja') priorityClass = 'table-success';
-        
         if (priorityClass) {
             row.classList.add(priorityClass);
         }
@@ -212,6 +229,13 @@ function render() {
 }
 
 if (btn) {
+    if (btn.form) {
+        btn.form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            btn.click(); // Desencadena el click para agregar.
+        });
+    }
+
     btn.addEventListener('click', function () {
         if (titleInput.value.trim() === '' || descriptionInput.value.trim() === '') {
             alertBox.classList.remove('d-none');
@@ -221,7 +245,8 @@ if (btn) {
 
         alertBox.classList.add('d-none');
 
-        addTodo(titleInput.value.trim(), descriptionInput.value.trim());
+        const prioValue = priorityInput ? priorityInput.value : 'Baja';
+        addTodo(titleInput.value.trim(), descriptionInput.value.trim(), prioValue);
         render();
 
         titleInput.value = '';
@@ -231,6 +256,13 @@ if (btn) {
 }
 
 if (modalBtn) {
+    if (modalBtn.form) {
+        modalBtn.form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            modalBtn.click();
+        });
+    }
+
     modalBtn.addEventListener('click', function () {
         if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
             modalAlert.classList.remove('d-none');
@@ -241,25 +273,6 @@ if (modalBtn) {
         modalAlert.classList.add('d-none');
         const prioValue = modalPriority ? modalPriority.value : 'Baja';
         editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked, prioValue);
-        render();
-
-        if (typeof $ !== 'undefined') {
-            $('#modal').modal('hide');
-        }
-    });
-}
-
-if (modalBtn) {
-    modalBtn.addEventListener('click', function () {
-        if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
-            modalAlert.classList.remove('d-none');
-            modalAlert.innerText = 'Title and description are required';
-            return;
-        }
-
-        modalAlert.classList.add('d-none');
-
-        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
         render();
 
         if (typeof $ !== 'undefined') {
