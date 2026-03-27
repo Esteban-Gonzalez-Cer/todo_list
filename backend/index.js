@@ -9,12 +9,13 @@ function getTodos() {
     return todos;
 }
 
-function addTodo(title, description) {
+function addTodo(title, description, priority = 'Baja') {
     if (!title || !description) return null;
     const newTodo = {
         id: nextId++,
         title,
         description,
+        priority,
         completed: false
     };
     todos.push(newTodo);
@@ -115,6 +116,7 @@ function handleEdit(id) {
 let tableBody = null;
 let titleInput = null;
 let descriptionInput = null;
+let priorityInput = null;
 let alertBox = null;
 let btn = null;
 
@@ -128,6 +130,7 @@ if (typeof document !== 'undefined') {
     tableBody = document.querySelector('#table tbody');
     titleInput = document.getElementById('title');
     descriptionInput = document.getElementById('description');
+    priorityInput = document.getElementById('priority');
     alertBox = document.getElementById('alert');
     btn = document.getElementById('add');
 
@@ -174,6 +177,16 @@ function render() {
 
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
+        
+        let priorityClass = '';
+        if (todo.priority === 'Alta') priorityClass = 'table-danger';
+        else if (todo.priority === 'Media') priorityClass = 'table-warning';
+        else if (todo.priority === 'Baja') priorityClass = 'table-success';
+        
+        if (priorityClass) {
+            row.classList.add(priorityClass);
+        }
+
         const textStyle = todo.completed ? 'text-decoration: line-through; color: gray;' : '';
         row.innerHTML = `
             <td style="${textStyle}">
@@ -213,6 +226,26 @@ if (btn) {
 
         titleInput.value = '';
         descriptionInput.value = '';
+        if (priorityInput) priorityInput.value = 'Baja';
+    });
+}
+
+if (modalBtn) {
+    modalBtn.addEventListener('click', function () {
+        if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
+            modalAlert.classList.remove('d-none');
+            modalAlert.innerText = 'Title and description are required';
+            return;
+        }
+
+        modalAlert.classList.add('d-none');
+        const prioValue = modalPriority ? modalPriority.value : 'Baja';
+        editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked, prioValue);
+        render();
+
+        if (typeof $ !== 'undefined') {
+            $('#modal').modal('hide');
+        }
     });
 }
 
