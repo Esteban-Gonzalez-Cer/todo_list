@@ -97,14 +97,14 @@ let editingId = null;
 function handleEdit(id) {
     const todo = getTodos().find(t => t.id === id);
     if (!todo) return;
-    
+
     editingId = id;
     if (typeof document !== 'undefined') {
         document.getElementById('modal-title').value = todo.title;
         document.getElementById('modal-description').value = todo.description;
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
-        
+
         // Abrir modal
         if (typeof $ !== 'undefined') {
             $('#modal').modal('show');
@@ -130,7 +130,7 @@ if (typeof document !== 'undefined') {
     descriptionInput = document.getElementById('description');
     alertBox = document.getElementById('alert');
     btn = document.getElementById('add');
-    
+
     modalTitle = document.getElementById('modal-title');
     modalDescription = document.getElementById('modal-description');
     modalCompleted = document.getElementById('modal-completed');
@@ -142,7 +142,36 @@ function render() {
     if (!tableBody) return;
     saveToLocalStorage();
     tableBody.innerHTML = '';
-    const currentTodos = getTodos();
+    
+    let currentTodos = getTodos();
+    
+    // Filtros
+    if (typeof document !== 'undefined') {
+        const filterForm = document.getElementById('filters');
+        if (filterForm) {
+            const typeRadios = document.getElementsByName('type');
+            let selectedType = 'all';
+            for (let radio of typeRadios) {
+                if (radio.checked) selectedType = radio.value;
+            }
+            
+            const wordsInput = document.querySelector('input[name="words"]');
+            const searchWord = wordsInput ? wordsInput.value.toLowerCase() : '';
+            
+            currentTodos = currentTodos.filter(todo => {
+                if (selectedType === 'completed' && !todo.completed) return false;
+                if (selectedType === 'uncompleted' && todo.completed) return false;
+                
+                if (searchWord !== '') {
+                    const titleMatch = todo.title.toLowerCase().includes(searchWord);
+                    const descMatch = todo.description.toLowerCase().includes(searchWord);
+                    if (!titleMatch && !descMatch) return false;
+                }
+                return true;
+            });
+        }
+    }
+
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
         const textStyle = todo.completed ? 'text-decoration: line-through; color: gray;' : '';
@@ -178,7 +207,7 @@ if (btn) {
         }
 
         alertBox.classList.add('d-none');
-        
+
         addTodo(titleInput.value.trim(), descriptionInput.value.trim());
         render();
 
@@ -188,18 +217,18 @@ if (btn) {
 }
 
 if (modalBtn) {
-    modalBtn.addEventListener('click', function() {
+    modalBtn.addEventListener('click', function () {
         if (modalTitle.value.trim() === '' || modalDescription.value.trim() === '') {
             modalAlert.classList.remove('d-none');
             modalAlert.innerText = 'Title and description are required';
             return;
         }
-        
+
         modalAlert.classList.add('d-none');
-        
+
         editTodo(editingId, modalTitle.value.trim(), modalDescription.value.trim(), modalCompleted.checked);
         render();
-        
+
         if (typeof $ !== 'undefined') {
             $('#modal').modal('hide');
         }
@@ -208,6 +237,27 @@ if (modalBtn) {
 
 // Render inicial
 if (typeof document !== 'undefined') {
+<<<<<<< HEAD
+=======
+    const filterForm = document.getElementById('filters');
+    if (filterForm) {
+        const typeRadios = document.getElementsByName('type');
+        for (let radio of typeRadios) {
+            radio.addEventListener('change', render);
+        }
+        
+        const wordsInput = document.querySelector('input[name="words"]');
+        if (wordsInput) {
+            wordsInput.addEventListener('input', render);
+        }
+        
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            render();
+        });
+    }
+
+>>>>>>> c0813d9 (Se ha agrego el filtrado de tareas para la visualización de la tabla)
     loadFromLocalStorage();
     render();
 }
