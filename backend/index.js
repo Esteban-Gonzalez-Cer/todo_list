@@ -1,7 +1,3 @@
-/* =========================================
-   BUSINESS LOGIC (Para Pruebas Unitarias)
-   ========================================= */
-
 let todos = [];
 let nextId = 1;
 
@@ -106,7 +102,7 @@ function handleEdit(id) {
         document.getElementById('modal-description').value = todo.description;
         document.getElementById('modal-completed').checked = todo.completed;
         document.getElementById('modal-alert').classList.add('d-none');
-        
+
         const modalPriority = document.getElementById('modal-priority');
         if (modalPriority && todo.priority) {
             modalPriority.value = todo.priority;
@@ -155,9 +151,9 @@ function render() {
     if (!tableBody) return;
     saveToLocalStorage();
     tableBody.innerHTML = '';
-    
+
     let currentTodos = getTodos();
-    
+
     // Filtros
     if (typeof document !== 'undefined') {
         const filterForm = document.getElementById('filters');
@@ -167,14 +163,14 @@ function render() {
             for (let radio of typeRadios) {
                 if (radio.checked) selectedType = radio.value;
             }
-            
+
             const wordsInput = document.querySelector('input[name="words"]');
             const searchWord = wordsInput ? wordsInput.value.toLowerCase() : '';
-            
+
             currentTodos = currentTodos.filter(todo => {
                 if (selectedType === 'completed' && !todo.completed) return false;
                 if (selectedType === 'uncompleted' && todo.completed) return false;
-                
+
                 if (searchWord !== '') {
                     const titleMatch = todo.title.toLowerCase().includes(searchWord);
                     const descMatch = todo.description.toLowerCase().includes(searchWord);
@@ -187,12 +183,12 @@ function render() {
 
     currentTodos.forEach(todo => {
         const row = document.createElement('tr');
-        
+
         let priorityClass = '';
         if (todo.priority === 'Alta') priorityClass = 'table-danger';
         else if (todo.priority === 'Media') priorityClass = 'table-warning';
         else if (todo.priority === 'Baja') priorityClass = 'table-success';
-        
+
         if (priorityClass) {
             row.classList.add(priorityClass);
         }
@@ -230,7 +226,7 @@ if (btn) {
         }
 
         alertBox.classList.add('d-none');
-        
+
         const prioValue = priorityInput ? priorityInput.value : 'Baja';
         addTodo(titleInput.value.trim(), descriptionInput.value.trim(), prioValue);
         render();
@@ -270,13 +266,13 @@ if (typeof document !== 'undefined') {
         for (let radio of typeRadios) {
             radio.addEventListener('change', render);
         }
-        
+
         const wordsInput = document.querySelector('input[name="words"]');
         if (wordsInput) {
             wordsInput.addEventListener('input', render);
         }
-        
-        filterForm.addEventListener('submit', function(e) {
+
+        filterForm.addEventListener('submit', function (e) {
             e.preventDefault();
             render();
         });
