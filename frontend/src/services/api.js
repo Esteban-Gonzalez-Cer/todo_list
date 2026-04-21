@@ -1,4 +1,4 @@
-const BASE_URL = 'https://todo-list-j65s.onrender.com';
+const BASE_URL = 'https://todo-list-j65s.onrender.com/api';
 
 // Helper interno: hace fetch y lanza error si la respuesta no es ok
 async function request(path, options = {}) {
